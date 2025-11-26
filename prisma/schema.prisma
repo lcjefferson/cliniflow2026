@@ -1,0 +1,435 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("RECEPTIONIST") // UserRole
+  avatar    String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clinicId String?
+  clinic   Clinic? @relation(fields: [clinicId], references: [id])
+
+  professionalId String?       @unique
+  professional   Professional? @relation(fields: [professionalId], references: [id])
+
+  appointments Appointment[]
+  payments     Payment[]
+  reports      Report[]
+
+  @@map("users")
+}
+
+model Clinic {
+  id          String   @id @default(cuid())
+  name        String
+  logo        String?
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  cnpj        String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users         User[]
+  professionals Professional[]
+  patients      Patient[]
+  services      Service[]
+  appointments  Appointment[]
+  leads         Lead[]
+  conversations Conversation[]
+  followUps     FollowUp[]
+  followUpExecutions FollowUpExecution[]
+  settings      ClinicSettings?
+  prescriptions Prescription[]
+  certificates  MedicalCertificate[]
+
+  @@map("clinics")
+}
+
+model ClinicSettings {
+  id                     String   @id @default(cuid())
+  whatsappToken          String?
+  whatsappPhoneNumberId  String?
+  whatsappWebhookToken   String?
+  instagramAccessToken   String?
+  instagramAccountId     String?
+  enableBirthdayMessages Boolean  @default(true)
+  enableFollowUps        Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  clinicId String @unique
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  @@map("clinic_settings")
+}
+
+model Professional {
+  id            String   @id @default(cuid())
+  name          String
+  email         String?
+  phone         String?
+  specialty     String?
+  cro           String?
+  avatar        String?
+  active        Boolean  @default(true)
+  workSchedule  String? // Json stored as String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  user         User?
+  appointments Appointment[]
+
+  treatments   Treatment[]
+  prescriptions Prescription[]
+  certificates  MedicalCertificate[]
+
+  @@map("professionals")
+}
+
+model Patient {
+  id          String    @id @default(cuid())
+  name        String
+  email       String?
+  phone       String
+  cpf         String?
+  birthDate   DateTime?
+  gender      String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  occupation  String?
+  maritalStatus String?
+  emergencyContact String?
+  emergencyPhone   String?
+  notes       String?
+  avatar      String?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  appointments Appointment[]
+  treatments   Treatment[]
+  prescriptions Prescription[]
+  certificates  MedicalCertificate[]
+  anamnesis    Anamnesis[]
+  documents    Document[]
+  payments     Payment[]
+  conversations Conversation[]
+
+  @@map("patients")
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String?
+  phone     String
+  source    String     @default("OMNICHANNEL") // LeadSource
+  status    String     @default("NEW") // LeadStatus
+  notes     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  conversationId String?       @unique
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+
+  @@map("leads")
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  status      String            @default("SCHEDULED") // AppointmentStatus
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  @@map("appointments")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  duration    Int // in minutes
+  category    String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  appointments Appointment[]
+  treatments   Treatment[]
+
+  @@map("services")
+}
+
+model Treatment {
+  id          String          @id @default(cuid())
+  description String
+  status      String          @default("IN_PROGRESS") // TreatmentStatus
+  startDate   DateTime
+  endDate     DateTime?
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+
+  @@map("treatments")
+}
+
+model Anamnesis {
+  id                    String   @id @default(cuid())
+  hasAllergies          Boolean  @default(false)
+  allergiesDescription  String?
+  hasMedications        Boolean  @default(false)
+  medicationsDescription String?
+  hasDiseases           Boolean  @default(false)
+  diseasesDescription   String?
+  hasSurgeries          Boolean  @default(false)
+  surgeriesDescription  String?
+  smokingStatus         String?
+  alcoholConsumption    String?
+  dentalHistory         String?
+  chiefComplaint        String?
+  additionalNotes       String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  @@map("anamnesis")
+}
+
+model Document {
+  id          String       @id @default(cuid())
+  title       String
+  type        String       // DocumentType
+  fileUrl     String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  @@map("documents")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  amount        Float
+  type          String        // PaymentType
+  status        String        @default("PENDING") // PaymentStatus
+  method        String?       // PaymentMethod
+  description   String?
+  dueDate       DateTime?
+  paidDate      DateTime?
+  installment   Int?
+  totalInstallments Int?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id])
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  @@map("payments")
+}
+
+model Conversation {
+  id          String            @id @default(cuid())
+  channel     String            // ConversationChannel
+  externalId  String // WhatsApp/Instagram conversation ID
+  contactName String
+  contactPhone String?
+  lastMessage String?
+  lastMessageAt DateTime?
+  unreadCount Int              @default(0)
+  status      String           @default("OPEN") // ConversationStatus
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  patientId String?
+  patient   Patient? @relation(fields: [patientId], references: [id])
+
+  messages Message[]
+  lead     Lead?
+
+  @@unique([channel, externalId])
+  @@map("conversations")
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  externalId  String // WhatsApp/Instagram message ID
+  content     String
+  mediaUrl    String?
+  direction   String      // MessageDirection
+  status      String      @default("SENT") // MessageStatus
+  createdAt   DateTime    @default(now())
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@map("messages")
+}
+
+model FollowUp {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  trigger     String         // FollowUpTrigger
+  targetType  String         // FollowUpTarget
+  delay       Int? // days after trigger
+  messageTemplate String
+  active      Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  executions FollowUpExecution[]
+
+  @@map("follow_ups")
+}
+
+model FollowUpExecution {
+  id           String    @id @default(cuid())
+  followUpId   String
+  targetId     String    // Lead or Patient ID
+  targetType   String    // 'lead' | 'patient'
+  scheduledFor DateTime
+  executedAt   DateTime?
+  status       String    @default("PENDING") // PENDING | SENT | FAILED
+  message      String    // Processed message with variables
+  error        String?
+  createdAt    DateTime  @default(now())
+
+  followUp FollowUp @relation(fields: [followUpId], references: [id])
+  
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  @@map("follow_up_executions")
+}
+
+model Report {
+  id          String     @id @default(cuid())
+  name        String
+  type        String     // ReportType
+  parameters  String     // Json stored as String
+  fileUrl     String?
+  createdAt   DateTime   @default(now())
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  @@map("reports")
+}
+
+model Prescription {
+  id          String   @id @default(cuid())
+  medications String   // JSON string or formatted text
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+
+  @@map("prescriptions")
+}
+
+model MedicalCertificate {
+  id          String   @id @default(cuid())
+  description String
+  startDate   DateTime
+  days        Int
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id])
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+
+  @@map("medical_certificates")
+}
