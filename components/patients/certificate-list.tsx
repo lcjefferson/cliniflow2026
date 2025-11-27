@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MedicalCertificate } from "@prisma/client";
 import { Plus, FileText, Loader2, Printer } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +21,16 @@ interface CertificateListProps {
     patientName: string;
 }
 
-type CertificateWithDetails = MedicalCertificate & {
+interface CertificateBase {
+    id: string;
+    description: string;
+    startDate: string | Date;
+    days: number;
+    notes: string | null;
+    createdAt: string | Date;
+}
+
+type CertificateWithDetails = CertificateBase & {
     professional: {
         name: string;
         cro: string | null;

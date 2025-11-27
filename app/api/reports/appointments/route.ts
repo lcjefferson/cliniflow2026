@@ -4,6 +4,15 @@ import { getSession } from "@/lib/auth";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+interface AppointmentReportItem {
+    startTime: Date;
+    title: string;
+    status: string;
+    patient: { name: string; phone: string | null };
+    professional: { name: string; specialty: string | null } | null;
+    service: { name: string } | null;
+}
+
 export async function GET(request: NextRequest) {
     try {
         const session = await getSession();
@@ -25,7 +34,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Fetch appointments
-        const appointments = await prisma.appointment.findMany({
+        const appointments: AppointmentReportItem[] = await prisma.appointment.findMany({
             where: {
                 clinicId: session.user.clinicId,
                 ...(Object.keys(dateFilter).length > 0 && { startTime: dateFilter }),
