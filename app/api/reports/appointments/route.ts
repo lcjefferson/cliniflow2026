@@ -56,16 +56,16 @@ export async function GET(request: NextRequest) {
 
         // Calculate statistics
         const totalAppointments = appointments.length;
-        const completed = appointments.filter((a) => a.status === "COMPLETED").length;
-        const cancelled = appointments.filter((a) => a.status === "CANCELLED").length;
-        const scheduled = appointments.filter((a) => a.status === "SCHEDULED").length;
+        const completed = appointments.filter((a: any) => a.status === "COMPLETED").length;
+        const cancelled = appointments.filter((a: any) => a.status === "CANCELLED").length;
+        const scheduled = appointments.filter((a: any) => a.status === "SCHEDULED").length;
 
         // Format data for report
         const reportData = {
             title: "Relatório de Agendamentos",
             subtitle: `Período: ${startDate ? format(new Date(startDate), "dd/MM/yyyy", { locale: ptBR }) : "Início"} - ${endDate ? format(new Date(endDate), "dd/MM/yyyy", { locale: ptBR }) : "Hoje"}`,
             headers: ["Data/Hora", "Paciente", "Profissional", "Serviço", "Status"],
-            rows: appointments.map((appointment) => [
+            rows: appointments.map((appointment: any) => [
                 format(new Date(appointment.startTime), "dd/MM/yyyy HH:mm", { locale: ptBR }),
                 appointment.patient.name,
                 appointment.professional?.name || "-",
