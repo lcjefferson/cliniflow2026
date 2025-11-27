@@ -189,58 +189,7 @@ export default function DashboardPage() {
                     </CardContent>
                 </Card>
 
-                {/* Quick Stats */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-primary-400" />
-                            Estatísticas Rápidas
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-6">
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-700">Taxa de Conversão de Leads</span>
-                                    <span className="font-medium text-gray-900">{data.quickStats.conversionRate}%</span>
-                                </div>
-                                <div className="h-2 rounded-full bg-secondary-800 overflow-hidden">
-                                    <div className={`h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full`} style={{ width: `${data.quickStats.conversionRate}%` }}></div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-700">Ocupação de Agenda</span>
-                                    <span className="font-medium text-gray-900">{data.quickStats.occupancyRate}%</span>
-                                </div>
-                                <div className="h-2 rounded-full bg-secondary-800 overflow-hidden">
-                                    <div className={`h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full`} style={{ width: `${data.quickStats.occupancyRate}%` }}></div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-700">Satisfação dos Pacientes</span>
-                                    <span className="font-medium text-gray-900">{data.quickStats.satisfactionRate}%</span>
-                                </div>
-                                <div className="h-2 rounded-full bg-secondary-800 overflow-hidden">
-                                    <div className={`h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full`} style={{ width: `${data.quickStats.satisfactionRate}%` }}></div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-700">Follow-ups Realizados</span>
-                                    <span className="font-medium text-gray-900">{data.quickStats.followUpRate}%</span>
-                                </div>
-                                <div className="h-2 rounded-full bg-secondary-800 overflow-hidden">
-                                    <div className={`h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full`} style={{ width: `${data.quickStats.followUpRate}%` }}></div>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* Quick Stats removed as requested */}
             </div>
 
             {/* Activity Feed */}

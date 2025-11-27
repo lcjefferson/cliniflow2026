@@ -5,7 +5,9 @@ export const generatePrescriptionHTML = (
     notes: string | undefined,
     professionalName: string,
     professionalCro: string | undefined,
-    date: string
+    date: string,
+    clinicLogoUrl?: string,
+    clinicAddress?: string
 ) => {
     return `
     <!DOCTYPE html>
@@ -39,9 +41,12 @@ export const generatePrescriptionHTML = (
     </head>
     <body>
       <div class="header">
-        <div>
-          <div class="clinic-name">${clinicName}</div>
-          <div class="clinic-info">Clínica Odontológica Especializada</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          ${clinicLogoUrl ? `<img src="${clinicLogoUrl}" alt="Logo" style="height:48px;width:auto;object-fit:contain;border-radius:6px;" />` : ''}
+          <div>
+            <div class="clinic-name">${clinicName}</div>
+            ${clinicAddress ? `<div class="clinic-info">${clinicAddress}</div>` : `<div class="clinic-info">Clínica Odontológica Especializada</div>`}
+          </div>
         </div>
       </div>
 
@@ -76,6 +81,7 @@ export const generatePrescriptionHTML = (
           <div class="signature-line"></div>
           <div class="prof-name">${professionalName}</div>
           ${professionalCro ? `<div class="prof-cro">${professionalCro}</div>` : ''}
+          <div style="font-size:11px;color:#6b7280;margin-top:6px;">Assinado digitalmente por ${professionalName} em ${new Date().toLocaleString('pt-BR')}</div>
         </div>
       </div>
 
@@ -96,7 +102,9 @@ export const generateCertificateHTML = (
     notes: string | undefined,
     professionalName: string,
     professionalCro: string | undefined,
-    date: string
+    date: string,
+    clinicLogoUrl?: string,
+    clinicAddress?: string
 ) => {
     return `
     <!DOCTYPE html>
@@ -125,9 +133,12 @@ export const generateCertificateHTML = (
     </head>
     <body>
       <div class="header">
-        <div>
-          <div class="clinic-name">${clinicName}</div>
-          <div class="clinic-info">Clínica Odontológica Especializada</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          ${clinicLogoUrl ? `<img src="${clinicLogoUrl}" alt="Logo" style="height:48px;width:auto;object-fit:contain;border-radius:6px;" />` : ''}
+          <div>
+            <div class="clinic-name">${clinicName}</div>
+            ${clinicAddress ? `<div class="clinic-info">${clinicAddress}</div>` : `<div class="clinic-info">Clínica Odontológica Especializada</div>`}
+          </div>
         </div>
       </div>
 
@@ -150,6 +161,7 @@ export const generateCertificateHTML = (
           <div class="signature-line"></div>
           <div class="prof-name">${professionalName}</div>
           ${professionalCro ? `<div class="prof-cro">${professionalCro}</div>` : ''}
+          <div style="font-size:11px;color:#6b7280;margin-top:6px;">Assinado digitalmente por ${professionalName} em ${new Date().toLocaleString('pt-BR')}</div>
         </div>
       </div>
 

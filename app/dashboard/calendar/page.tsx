@@ -1,14 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Appointment, Patient, Professional, Service } from "@prisma/client";
+interface Patient {
+    id: string;
+    name: string;
+    phone?: string | null;
+    email?: string | null;
+}
+
+interface Professional {
+    id: string;
+    name: string;
+    specialty?: string | null;
+}
+
+interface Service {
+    id: string;
+    name: string;
+    duration?: number;
+    price?: number;
+}
+
+interface AppointmentBase {
+    id: string;
+    startTime: string | Date;
+    endTime: string | Date;
+    status: string;
+    patientId: string;
+    professionalId: string;
+    serviceId: string | null;
+    notes: string | null;
+}
 import { Calendar } from "@/components/appointments/calendar";
 import { AppointmentDialog } from "@/components/appointments/appointment-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Plus, Calendar as CalendarIcon } from "lucide-react";
 
 
-type AppointmentWithPatient = Appointment & { patient?: Patient; professional?: Professional; service?: Service };
+type AppointmentWithPatient = AppointmentBase & { patient?: Patient; professional?: Professional; service?: Service };
 
 export default function CalendarPage() {
     const [appointments, setAppointments] = useState<AppointmentWithPatient[]>([]);

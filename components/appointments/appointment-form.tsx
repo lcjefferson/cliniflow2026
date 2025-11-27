@@ -6,14 +6,43 @@ import {
     appointmentSchema,
     AppointmentFormData,
 } from "@/lib/validations/appointment";
-import { Appointment, Patient, Professional, Service } from "@prisma/client";
+interface Patient {
+    id: string;
+    name: string;
+    phone?: string | null;
+    email?: string | null;
+}
+
+interface Professional {
+    id: string;
+    name: string;
+    specialty?: string | null;
+}
+
+interface Service {
+    id: string;
+    name: string;
+    duration?: number;
+    price?: number;
+}
+
+interface AppointmentBase {
+    id: string;
+    patientId: string;
+    professionalId: string;
+    serviceId: string | null;
+    startTime: string | Date;
+    endTime: string | Date;
+    notes: string | null;
+    status: "SCHEDULED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | string;
+}
 import { useEffect, useState } from "react";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { PatientDialog } from "@/components/patients/patient-dialog";
 import { Plus } from "lucide-react";
 
 interface AppointmentFormProps {
-    appointment?: Appointment & { patient?: Patient; professional?: Professional; service?: Service };
+    appointment?: AppointmentBase & { patient?: Patient; professional?: Professional; service?: Service };
     onSubmit: (data: AppointmentFormData) => Promise<void>;
     onCancel: () => void;
     selectedDate?: Date;
@@ -72,6 +101,16 @@ export function AppointmentForm({
         }
     };
 
+    const formatLocalDateTimeInput = (date: Date) => {
+        const pad = (n: number) => String(n).padStart(2, "0");
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
     const {
         register,
         handleSubmit,
@@ -85,15 +124,15 @@ export function AppointmentForm({
                 patientId: appointment.patientId,
                 professionalId: appointment.professionalId,
                 serviceId: appointment.serviceId || "",
-                startTime: new Date(new Date(appointment.startTime).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
-                endTime: new Date(new Date(appointment.endTime).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+                startTime: formatLocalDateTimeInput(new Date(appointment.startTime)),
+                endTime: formatLocalDateTimeInput(new Date(appointment.endTime)),
                 notes: appointment.notes || "",
                 status: appointment.status as "SCHEDULED" | "CONFIRMED" | "COMPLETED" | "CANCELLED",
             }
             : selectedDate
                 ? {
-                    startTime: new Date(selectedDate.setHours(9, 0, 0, 0)).toISOString().slice(0, 16),
-                    endTime: new Date(selectedDate.setHours(10, 0, 0, 0)).toISOString().slice(0, 16),
+                    startTime: formatLocalDateTimeInput(new Date(new Date(selectedDate).setHours(9, 0, 0, 0))),
+                    endTime: formatLocalDateTimeInput(new Date(new Date(selectedDate).setHours(10, 0, 0, 0))),
                 }
                 : {
                     startTime: "",
@@ -123,7 +162,7 @@ export function AppointmentForm({
                                         options={patients.map((p) => ({
                                             label: p.name,
                                             value: p.id,
-                                            description: p.phone,
+                                            description: p.phone ?? undefined,
                                         }))}
                                         value={selectedPatientId}
                                         onChange={(value) => setValue("patientId", value, { shouldValidate: true })}
@@ -185,7 +224,7 @@ export function AppointmentForm({
                                 options={services.map((s) => ({
                                     label: s.name,
                                     value: s.id,
-                                    description: `${s.duration} min - R$ ${s.price.toFixed(2)}`,
+                                    description: `${s.duration ?? 0} min - R$ ${(s.price ?? 0).toFixed(2)}`,
                                 }))}
                                 value={selectedServiceId || ""}
                                 onChange={(value) => setValue("serviceId", value)}

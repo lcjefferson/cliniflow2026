@@ -55,7 +55,9 @@ export function CertificateList({ patientId, patientName }: CertificateListProps
         },
     });
 
-    const [clinicName, setClinicName] = useState("Dental Clinic");
+    const [clinicName, setClinicName] = useState("CliniFlow");
+    const [clinicLogoUrl, setClinicLogoUrl] = useState<string | undefined>(undefined);
+    const [clinicAddress, setClinicAddress] = useState<string | undefined>(undefined);
 
     const fetchCertificates = useCallback(async () => {
         try {
@@ -78,6 +80,13 @@ export function CertificateList({ patientId, patientName }: CertificateListProps
                 const data = await response.json();
                 if (data.name) {
                     setClinicName(data.name);
+                }
+                if (data.logo) {
+                    setClinicLogoUrl(data.logo as string);
+                }
+                const fullAddress = [data.address, data.city, data.state, data.zipCode].filter(Boolean).join(', ');
+                if (fullAddress) {
+                    setClinicAddress(fullAddress);
                 }
             }
         } catch (error) {
@@ -122,7 +131,9 @@ export function CertificateList({ patientId, patientName }: CertificateListProps
                 certificate.notes || undefined,
                 certificate.professional.name,
                 certificate.professional.cro || undefined,
-                new Date(certificate.createdAt).toLocaleDateString("pt-BR")
+                new Date(certificate.createdAt).toLocaleDateString("pt-BR"),
+                clinicLogoUrl,
+                clinicAddress
             );
 
             const printWindow = window.open("", "_blank");

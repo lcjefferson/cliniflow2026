@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -88,6 +88,24 @@ export function LeadDialog({ open, onOpenChange, lead, onSuccess }: LeadDialogPr
                 notes: '',
             },
     });
+
+    // Ensure form fields reflect the selected lead when editing
+    // and avoid stale values when switching between leads
+    useEffect(() => {
+        if (lead) {
+            const values: LeadFormData = {
+                name: lead.name,
+                phone: lead.phone,
+                email: lead.email || '',
+                source: lead.source as LeadFormData['source'],
+                status: lead.status as LeadFormData['status'],
+                notes: lead.notes || '',
+            };
+            reset(values);
+        } else {
+            reset({ name: '', phone: '', email: '', source: 'OMNICHANNEL', status: 'NEW', notes: '' });
+        }
+    }, [lead, reset]);
 
     const onSubmit = async (data: LeadFormData) => {
         try {

@@ -1,13 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { Appointment, Patient, Professional, Service } from "@prisma/client";
+interface AppointmentBase {
+    id: string;
+    patientId: string;
+    professionalId: string;
+    serviceId: string | null;
+    startTime: string | Date;
+    endTime: string | Date;
+    notes: string | null;
+    status: "SCHEDULED" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | string;
+}
+
+type AppointmentWithDetails = AppointmentBase & {
+    patient?: {
+        id: string;
+        name: string;
+        phone?: string | null;
+        email?: string | null;
+    };
+    professional?: {
+        id: string;
+        name: string;
+        specialty?: string | null;
+    };
+    service?: {
+        id: string;
+        name: string;
+        duration?: number;
+        price?: number;
+    };
+};
 import { AppointmentForm } from "./appointment-form";
 import { AppointmentFormData } from "@/lib/validations/appointment";
 import { X } from "lucide-react";
 
 interface AppointmentDialogProps {
-    appointment?: Appointment & { patient?: Patient; professional?: Professional; service?: Service };
+    appointment?: AppointmentWithDetails;
     open: boolean;
     onClose: () => void;
     onSuccess: () => void;
@@ -22,6 +51,7 @@ export function AppointmentDialog({
     selectedDate,
 }: AppointmentDialogProps) {
     const [error, setError] = useState("");
+    const [deleting, setDeleting] = useState(false);
 
     const handleSubmit = async (data: AppointmentFormData) => {
         try {
@@ -56,6 +86,30 @@ export function AppointmentDialog({
         }
     };
 
+    const handleDelete = async () => {
+        if (!appointment) return;
+        const confirmed = window.confirm("Tem certeza que deseja excluir este agendamento?");
+        if (!confirmed) return;
+        try {
+            setDeleting(true);
+            const response = await fetch(`/api/appointments/${appointment.id}`, {
+                method: "DELETE",
+            });
+            if (!response.ok) {
+                const result = await response.json();
+                setError(result.error || "Erro ao excluir agendamento.");
+                return;
+            }
+            onSuccess();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            setError("Erro ao excluir agendamento. Tente novamente.");
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     if (!open) return null;
 
     return (
@@ -87,6 +141,17 @@ export function AppointmentDialog({
                         onCancel={onClose}
                         selectedDate={selectedDate}
                     />
+                    {appointment && (
+                        <div className="flex justify-end gap-3 pt-4 border-t">
+                            <button
+                                onClick={handleDelete}
+                                disabled={deleting}
+                                className="px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition disabled:opacity-50"
+                            >
+                                {deleting ? "Excluindo..." : "Excluir Agendamento"}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

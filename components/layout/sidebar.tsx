@@ -45,7 +45,7 @@ export function Sidebar() {
                         <Stethoscope className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-gray-900">DentalCare</h1>
+                        <h1 className="text-lg font-bold text-gray-900">CliniFlow</h1>
                         <p className="text-xs text-gray-700">Gestão Odontológica</p>
                     </div>
                 </div>
@@ -53,7 +53,7 @@ export function Sidebar() {
                 {/* Navigation */}
                 <nav className="flex-1 space-y-1 overflow-y-auto p-4 scrollbar-thin">
                     {navigation.map((item) => {
-                        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                        const isActive = pathname === item.href;
                         const Icon = item.icon;
 
                         return (

@@ -4,13 +4,39 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Appointment, Patient, Professional, Service } from "@prisma/client";
+interface Patient {
+    id: string;
+    name: string;
+}
+
+interface Professional {
+    id: string;
+    name: string;
+}
+
+interface Service {
+    id: string;
+    name: string;
+}
+
+interface AppointmentBase {
+    id: string;
+    startTime: string | Date;
+    endTime: string | Date;
+    status: string;
+    patientId: string;
+    professionalId: string;
+    serviceId: string | null;
+    notes: string | null;
+}
 import { useRef } from "react";
 
 interface CalendarProps {
-    appointments: (Appointment & { patient?: Patient; professional?: Professional; service?: Service })[];
+    appointments: (AppointmentBase & { patient?: Patient; professional?: Professional; service?: Service })[];
     onDateClick: (date: Date) => void;
-    onEventClick: (appointment: Appointment & { patient?: Patient; professional?: Professional; service?: Service }) => void;
+    onEventClick: (
+        appointment: AppointmentBase & { patient?: Patient; professional?: Professional; service?: Service }
+    ) => void;
 }
 
 export function Calendar({
@@ -65,6 +91,7 @@ export function Calendar({
                     week: "Semana",
                     day: "Dia",
                 }}
+                timeZone="local"
                 slotMinTime="07:00:00"
                 slotMaxTime="23:59:59"
                 allDaySlot={false}
