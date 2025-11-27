@@ -4,13 +4,13 @@ services:
     runtime: node
     plan: starter
     branch: main
-    buildCommand: npm ci && npx prisma generate && DATABASE_URL=$DATABASE_URL npx prisma db push && DATABASE_URL=$DATABASE_URL npx prisma db seed && npm run build
+    buildCommand: npm ci && npx prisma generate && npx prisma db push && npx prisma db seed && npm run build
     startCommand: npm run start
     envVars:
       - key: DATABASE_URL
-        sync: false
-      - key: DATABASE_URL_DIRECT
-        sync: false
+        fromDatabase:
+          name: cliniflow2026-db
+          property: connectionString
       - key: NEXTAUTH_URL
         sync: false
       - key: NEXTAUTH_SECRET
