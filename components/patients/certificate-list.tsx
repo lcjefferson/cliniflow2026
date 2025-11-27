@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MedicalCertificate } from "@prisma/client";
 import { Plus, FileText, Loader2, Printer } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -49,9 +49,18 @@ export function CertificateList({ patientId, patientName }: CertificateListProps
 
     const [clinicName, setClinicName] = useState("Dental Clinic");
 
-    useEffect(() => {
-        fetchCertificates();
-        fetchClinicSettings();
+    const fetchCertificates = useCallback(async () => {
+        try {
+            const response = await fetch(`/api/patients/${patientId}/certificates`);
+            if (response.ok) {
+                const data = await response.json();
+                setCertificates(data);
+            }
+        } catch (error) {
+            console.error("Error fetching certificates:", error);
+        } finally {
+            setLoading(false);
+        }
     }, [patientId]);
 
     const fetchClinicSettings = async () => {
@@ -68,19 +77,10 @@ export function CertificateList({ patientId, patientName }: CertificateListProps
         }
     };
 
-    const fetchCertificates = async () => {
-        try {
-            const response = await fetch(`/api/patients/${patientId}/certificates`);
-            if (response.ok) {
-                const data = await response.json();
-                setCertificates(data);
-            }
-        } catch (error) {
-            console.error("Error fetching certificates:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        fetchCertificates();
+        fetchClinicSettings();
+    }, [fetchCertificates]);
 
     const onSubmit = async (data: CertificateFormData) => {
         try {

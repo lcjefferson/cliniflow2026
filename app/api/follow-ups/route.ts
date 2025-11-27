@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/follow-ups - List follow-up rules
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const session = await getServerSession(authOptions);
 
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
         // Get execution statistics for each follow-up
         const followUpsWithStats = await Promise.all(
-            followUps.map(async (followUp) => {
+            followUps.map(async (followUp: typeof followUps[number]) => {
                 const stats = await prisma.followUpExecution.groupBy({
                     by: ['status'],
                     where: {
@@ -39,10 +39,11 @@ export async function GET(request: Request) {
                     _count: true,
                 });
 
-                const statsMap = stats.reduce((acc, stat) => {
-                    acc[stat.status.toLowerCase()] = stat._count;
-                    return acc;
-                }, {} as Record<string, number>);
+                const statsMap: Record<string, number> = {};
+                for (const stat of stats) {
+                    const key = String(stat.status).toLowerCase();
+                    statsMap[key] = Number(stat._count);
+                }
 
                 return {
                     ...followUp,

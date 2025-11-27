@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Patient } from "@prisma/client";
 import { PatientDialog } from "@/components/patients/patient-dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -15,7 +15,7 @@ export default function PatientsPage() {
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState<string | null>(null);
 
-    const fetchPatients = async () => {
+    const fetchPatients = useCallback(async () => {
         try {
             setLoading(true);
             const url = searchTerm
@@ -31,11 +31,11 @@ export default function PatientsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchTerm]);
 
     useEffect(() => {
         fetchPatients();
-    }, [searchTerm]);
+    }, [fetchPatients]);
 
     const handleNewPatient = () => {
         setSelectedPatient(undefined);

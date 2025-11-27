@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         const endDate = searchParams.get("endDate");
 
         // Build date filter
-        const dateFilter: any = {};
+        const dateFilter: { gte?: Date; lte?: Date } = {};
         if (startDate) {
             dateFilter.gte = new Date(startDate);
         }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FollowUpDialog } from '@/components/follow-ups/follow-up-dialog';
+import { FollowUpDialog } from '@/components/follow-up/follow-up-dialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Plus, Edit, Trash2, Loader2, TrendingUp, Send, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -95,7 +95,7 @@ export default function FollowUpsPage() {
             } else {
                 toast.error('Erro ao excluir');
             }
-        } catch (error) {
+        } catch {
             toast.error('Erro ao excluir');
         } finally {
             setConfirmDialogOpen(false);
@@ -117,7 +117,7 @@ export default function FollowUpsPage() {
             } else {
                 toast.error('Erro ao atualizar');
             }
-        } catch (error) {
+        } catch {
             toast.error('Erro ao atualizar');
         }
     };

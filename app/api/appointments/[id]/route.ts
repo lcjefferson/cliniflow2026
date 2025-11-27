@@ -5,7 +5,7 @@ import { appointmentSchema } from "@/lib/validations/appointment";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getSession();
@@ -13,9 +13,10 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const { id } = await params;
         const appointment = await prisma.appointment.findFirst({
             where: {
-                id: params.id,
+                id: id,
                 clinicId: session.user.clinicId,
             },
             include: {
@@ -64,7 +65,7 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getSession();
@@ -92,10 +93,11 @@ export async function PATCH(
         }
 
         // Check for conflicts (excluding current appointment)
+        const { id } = await params;
         const conflicts = await prisma.appointment.findMany({
             where: {
                 clinicId: session.user.clinicId,
-                id: { not: params.id },
+                id: { not: id },
                 status: {
                     not: "CANCELLED",
                 },
@@ -131,7 +133,7 @@ export async function PATCH(
 
         const appointment = await prisma.appointment.update({
             where: {
-                id: params.id,
+                id: id,
                 clinicId: session.user.clinicId,
             },
             data: {
@@ -175,7 +177,7 @@ export async function PATCH(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getSession();
@@ -184,9 +186,10 @@ export async function DELETE(
         }
 
         // Cancel appointment instead of deleting
+        const { id } = await params;
         const appointment = await prisma.appointment.updateMany({
             where: {
-                id: params.id,
+                id: id,
                 clinicId: session.user.clinicId,
             },
             data: {

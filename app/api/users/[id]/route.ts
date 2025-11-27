@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcrypt';
 
 // GET /api/users/[id] - Get a single user details
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.clinicId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        const { id } = await params;
         const user = await prisma.user.findUnique({
-            where: { id: params.id },
+            where: { id },
             select: {
                 id: true,
                 name: true,
@@ -34,7 +34,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // PATCH /api/users/[id] - Update user fields (except password)
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.clinicId) {
@@ -46,8 +46,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         }
         const body = await request.json();
         const { name, email, role, active } = body;
+        const { id } = await params;
         const updated = await prisma.user.update({
-            where: { id: params.id },
+            where: { id },
             data: { name, email, role, active },
             select: { id: true, name: true, email: true, role: true, active: true },
         });
@@ -59,7 +60,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 // DELETE /api/users/[id] - Soft delete (deactivate) user
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.clinicId) {
@@ -69,8 +70,9 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         if (session.user.role !== 'ADMIN') {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
+        const { id } = await params;
         const deactivated = await prisma.user.update({
-            where: { id: params.id },
+            where: { id },
             data: { active: false },
             select: { id: true, active: true },
         });

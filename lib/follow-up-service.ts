@@ -5,10 +5,16 @@ interface ScheduleFollowUpParams {
     targetId: string;
     targetType: 'lead' | 'patient';
     clinicId: string;
-    additionalData?: Record<string, any>;
+    additionalData?: {
+        referenceDate?: string | Date;
+        data?: string;
+        hora?: string;
+        profissional?: string;
+    };
 }
 
 interface MessageVariables {
+    [key: string]: string | undefined;
     nome: string;
     clinica: string;
     data?: string;
@@ -65,7 +71,9 @@ export async function scheduleFollowUp(params: ScheduleFollowUpParams) {
             const variables: MessageVariables = {
                 nome: target.name,
                 clinica: clinic?.name || 'Clínica',
-                ...additionalData,
+                data: additionalData.data,
+                hora: additionalData.hora,
+                profissional: additionalData.profissional,
             };
 
             // Process message template
@@ -105,7 +113,7 @@ function calculateScheduledDate(delayDays: number, referenceDate: Date = new Dat
  */
 export function processMessageTemplate(
     template: string,
-    variables: Record<string, any>
+    variables: Record<string, string | undefined>
 ): string {
     let message = template;
 
@@ -142,19 +150,26 @@ export async function sendMessage(
         } else {
             return await sendInstagramMessage(phone, message, settings);
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error sending message:', error);
-        return { success: false, error: error.message };
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        return { success: false, error: msg };
     }
 }
 
 /**
  * Send WhatsApp message via Meta Graph API
  */
+type ClinicSettings = {
+    whatsappToken?: string | null;
+    whatsappPhoneNumberId?: string | null;
+    instagramAccessToken?: string | null;
+};
+
 async function sendWhatsAppMessage(
     phone: string,
     message: string,
-    settings: any
+    settings: ClinicSettings
 ): Promise<{ success: boolean; error?: string }> {
     if (!settings.whatsappToken || !settings.whatsappPhoneNumberId) {
         return { success: false, error: 'WhatsApp not configured' };
@@ -183,8 +198,9 @@ async function sendWhatsAppMessage(
         }
 
         return { success: true };
-    } catch (error: any) {
-        return { success: false, error: error.message };
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        return { success: false, error: msg };
     }
 }
 
@@ -194,7 +210,7 @@ async function sendWhatsAppMessage(
 async function sendInstagramMessage(
     recipientId: string,
     message: string,
-    settings: any
+    settings: ClinicSettings
 ): Promise<{ success: boolean; error?: string }> {
     if (!settings.instagramAccessToken) {
         return { success: false, error: 'Instagram not configured' };
@@ -221,8 +237,9 @@ async function sendInstagramMessage(
         }
 
         return { success: true };
-    } catch (error: any) {
-        return { success: false, error: error.message };
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : 'Unknown error';
+        return { success: false, error: msg };
     }
 }
 
@@ -301,7 +318,7 @@ export async function processPendingFollowUps() {
                 console.log(
                     `Follow-up ${execution.id}: ${result.success ? 'SENT' : 'FAILED'}`
                 );
-            } catch (error: any) {
+            } catch (error) {
                 console.error(`Error processing execution ${execution.id}:`, error);
 
                 // Mark as failed
@@ -309,7 +326,7 @@ export async function processPendingFollowUps() {
                     where: { id: execution.id },
                     data: {
                         status: 'FAILED',
-                        error: error.message,
+                        error: error instanceof Error ? error.message : 'Unknown error',
                         executedAt: new Date(),
                     },
                 });

@@ -12,7 +12,7 @@ export function generateExcel(data: ReportData): Blob {
     const wb = XLSX.utils.book_new();
 
     // Prepare data with headers
-    const wsData: any[][] = [
+    const wsData: (string | number)[][] = [
         [data.title],
         [],
         data.headers,
@@ -56,7 +56,7 @@ export function downloadExcel(data: ReportData, filename: string) {
     const wb = XLSX.utils.book_new();
 
     // Prepare data with headers
-    const wsData: any[][] = [
+    const wsData: (string | number)[][] = [
         [data.title],
         [],
         data.headers,

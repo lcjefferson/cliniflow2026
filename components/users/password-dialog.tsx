@@ -73,9 +73,10 @@ export function PasswordDialog({ open, onOpenChange, userId, isOwnAccount }: Pas
             toast.success('Senha alterada com sucesso!');
             onOpenChange(false);
             reset();
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error changing password:', error);
-            toast.error(error.message || 'Erro ao alterar senha');
+            const msg = error instanceof Error ? error.message : 'Erro ao alterar senha';
+            toast.error(msg);
         } finally {
             setSaving(false);
         }

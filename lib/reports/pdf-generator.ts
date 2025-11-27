@@ -45,7 +45,8 @@ export function generatePDF(data: ReportData): Blob {
 
     // Totals section
     if (data.totals && data.totals.length > 0) {
-        const finalY = (doc as any).lastAutoTable.finalY || 30;
+        const last = (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable;
+        const finalY = (last?.finalY ?? 30);
 
         doc.setFontSize(10);
         doc.setTextColor(40);
@@ -118,7 +119,8 @@ export function downloadPDF(data: ReportData, filename: string) {
 
     // Totals section
     if (data.totals && data.totals.length > 0) {
-        const finalY = (doc as any).lastAutoTable.finalY || 30;
+        const last = (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable;
+        const finalY = (last?.finalY ?? 30);
 
         doc.setFontSize(10);
         doc.setTextColor(40);

@@ -75,8 +75,8 @@ export function LeadDialog({ open, onOpenChange, lead, onSuccess }: LeadDialogPr
                 name: lead.name,
                 phone: lead.phone,
                 email: lead.email || '',
-                source: lead.source as any,
-                status: lead.status as any,
+                source: lead.source as LeadFormData['source'],
+                status: lead.status as LeadFormData['status'],
                 notes: lead.notes || '',
             }
             : {
@@ -111,9 +111,10 @@ export function LeadDialog({ open, onOpenChange, lead, onSuccess }: LeadDialogPr
             onSuccess();
             onOpenChange(false);
             reset();
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error saving lead:', error);
-            toast.error(error.message || 'Erro ao salvar lead');
+            const msg = error instanceof Error ? error.message : 'Erro ao salvar lead';
+            toast.error(msg);
         } finally {
             setSaving(false);
         }

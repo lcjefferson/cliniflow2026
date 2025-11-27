@@ -96,7 +96,7 @@ export default function FollowUpPage() {
             } else {
                 toast.error('Erro ao excluir');
             }
-        } catch (error) {
+        } catch {
             toast.error('Erro ao excluir');
         } finally {
             setConfirmDialogOpen(false);
@@ -118,7 +118,7 @@ export default function FollowUpPage() {
             } else {
                 toast.error('Erro ao atualizar');
             }
-        } catch (error) {
+        } catch {
             toast.error('Erro ao atualizar');
         }
     };

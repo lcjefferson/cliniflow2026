@@ -259,7 +259,7 @@ export async function GET() {
         ]
             .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
             .slice(0, 5)
-            .map(({ timestamp, ...rest }) => rest);
+            .map((a) => ({ action: a.action, user: a.user, time: a.time, type: a.type }));
 
         return NextResponse.json({
             stats: [

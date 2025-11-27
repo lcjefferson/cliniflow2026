@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -53,11 +53,7 @@ export function AnamnesisForm({ patientId }: AnamnesisFormProps) {
     const hasDiseases = watch("hasDiseases");
     const hasSurgeries = watch("hasSurgeries");
 
-    useEffect(() => {
-        fetchAnamnesis();
-    }, [patientId]);
-
-    const fetchAnamnesis = async () => {
+    const fetchAnamnesis = useCallback(async () => {
         try {
             const response = await fetch(`/api/patients/${patientId}/anamnesis`);
             if (response.ok) {
@@ -71,7 +67,11 @@ export function AnamnesisForm({ patientId }: AnamnesisFormProps) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [patientId, reset]);
+
+    useEffect(() => {
+        fetchAnamnesis();
+    }, [fetchAnamnesis]);
 
     const onSubmit = async (data: AnamnesisFormData) => {
         try {

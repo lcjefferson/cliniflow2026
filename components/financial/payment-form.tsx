@@ -11,7 +11,10 @@ import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Patient } from "@prisma/client";
+interface Patient {
+  id: string;
+  name: string;
+}
 
 const paymentSchema = z.object({
     amount: z.string().min(1, "Valor é obrigatório"),
@@ -37,6 +40,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors },
     } = useForm<PaymentFormData>({
         resolver: zodResolver(paymentSchema),
@@ -116,8 +120,9 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                 <Label>Paciente (Opcional)</Label>
                 <SearchableSelect
                     options={patients}
+                    value={watch("patientId") || ""}
+                    onChange={(value) => setValue("patientId", value)}
                     placeholder="Selecione um paciente..."
-                    onSelect={(value) => setValue("patientId", value)}
                 />
             </div>
 

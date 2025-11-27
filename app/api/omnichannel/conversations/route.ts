@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
+
 
 // GET /api/omnichannel/conversations - List conversations
 export async function GET(request: Request) {
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
         const channel = searchParams.get('channel');
         const search = searchParams.get('search');
 
-        const where: any = {
+        const where: { clinicId: string; channel?: string; OR?: { contactName?: { contains: string }; contactPhone?: { contains: string } }[] } = {
             clinicId: session.user.clinicId,
         };
 

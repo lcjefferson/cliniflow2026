@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Send, Search, Instagram, Loader2, UserPlus } from 'lucide-react';
+import { MessageSquare, Send, Instagram, Loader2, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -35,28 +34,7 @@ export default function OmnichannelPage() {
     const [channelFilter, setChannelFilter] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        fetchConversations();
-        // Poll for new messages every 5 seconds
-        const interval = setInterval(fetchConversations, 5000);
-        return () => clearInterval(interval);
-    }, [channelFilter]);
-
-    useEffect(() => {
-        if (selectedConversation) {
-            fetchMessages(selectedConversation.id);
-        }
-    }, [selectedConversation]);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    const fetchConversations = async () => {
+    const fetchConversations = useCallback(async () => {
         try {
             const url = channelFilter
                 ? `/api/omnichannel/conversations?channel=${channelFilter}`
@@ -74,7 +52,28 @@ export default function OmnichannelPage() {
         } finally {
             setLoading(false);
         }
+    }, [channelFilter, selectedConversation]);
+
+    useEffect(() => {
+        fetchConversations();
+        const interval = setInterval(fetchConversations, 5000);
+        return () => clearInterval(interval);
+    }, [fetchConversations]);
+
+    useEffect(() => {
+        if (selectedConversation) {
+            fetchMessages(selectedConversation.id);
+        }
+    }, [selectedConversation]);
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
+
 
     const fetchMessages = async (conversationId: string) => {
         try {

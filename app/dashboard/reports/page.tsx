@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Calendar, Users, DollarSign, Loader2, Printer } from 'lucide-react';
+import { Calendar, Users, DollarSign, Loader2, Printer } from 'lucide-react';
 import { openReportPrintWindow } from '@/lib/reports/report-print-utils';
 import { toast } from 'sonner';
 import { subMonths, format } from 'date-fns';

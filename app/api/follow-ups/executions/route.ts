@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
+
 
 // GET /api/follow-ups/executions - List follow-up executions
 export async function GET(request: Request) {
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
         const limit = parseInt(searchParams.get('limit') || '50');
         const skip = (page - 1) * limit;
 
-        const where: any = {
+        const where: { clinicId: string; status?: string } = {
             clinicId: session.user.clinicId,
         };
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
                 orderBy: {
                     scheduledFor: 'desc',
                 },
-                skip: (page - 1) * limit,
+                skip,
                 take: limit,
             }),
             prisma.followUpExecution.count({ where }),

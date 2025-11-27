@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +38,7 @@ export default function LeadsPage() {
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
 
-    const fetchLeads = async () => {
+    const fetchLeads = useCallback(async () => {
         try {
             setLoading(true);
             const url = searchTerm
@@ -57,11 +57,11 @@ export default function LeadsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [searchTerm]);
 
     useEffect(() => {
         fetchLeads();
-    }, [searchTerm]);
+    }, [fetchLeads]);
 
     const handleNewLead = () => {
         setSelectedLead(undefined);
@@ -114,7 +114,7 @@ export default function LeadsPage() {
             });
 
             if (response.ok) {
-                const data = await response.json();
+                await response.json();
                 toast.success('Lead convertido em paciente com sucesso!');
                 fetchLeads();
             } else {

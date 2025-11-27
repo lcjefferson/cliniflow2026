@@ -38,7 +38,7 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getSession();
@@ -49,9 +49,10 @@ export async function PATCH(
         const body = await request.json();
         const validatedData = patientSchema.parse(body);
 
+        const { id } = await params;
         const patient = await prisma.patient.updateMany({
             where: {
-                id: params.id,
+                id: id,
                 clinicId: session.user.clinicId,
             },
             data: {
@@ -67,7 +68,7 @@ export async function PATCH(
         }
 
         const updatedPatient = await prisma.patient.findUnique({
-            where: { id: params.id },
+            where: { id: id },
         });
 
         return NextResponse.json(updatedPatient);

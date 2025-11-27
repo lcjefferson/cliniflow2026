@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 }
 
 // GET /api/follow-ups/process - Manual trigger for testing
-export async function GET(request: Request) {
+export async function GET() {
     try {
         const result = await processPendingFollowUps();
 

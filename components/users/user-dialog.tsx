@@ -61,7 +61,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
             ? {
                 name: user.name,
                 email: user.email,
-                role: user.role as any,
+                role: user.role as UserFormData['role'],
                 active: user.active,
             }
             : {
@@ -100,9 +100,10 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
             onSuccess();
             onOpenChange(false);
             reset();
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error saving user:', error);
-            toast.error(error.message || 'Erro ao salvar usuário');
+            const msg = error instanceof Error ? error.message : 'Erro ao salvar usuário';
+            toast.error(msg);
         } finally {
             setSaving(false);
         }

@@ -84,7 +84,7 @@ export function OmnichannelSettings() {
                 setTimeout(() => setCopiedInstagram(false), 2000);
             }
             toast.success('URL copiada!');
-        } catch (error) {
+        } catch {
             toast.error('Erro ao copiar URL');
         }
     };

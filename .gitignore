@@ -137,3 +137,19 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# OS/editor clutter
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Vercel local config
+.vercel/
+
+# Prisma local dev database (use Postgres in production)
+prisma/dev.db
+
+# Local dev/test scripts or temp files
+test-patient-crud.js
+teste.txt

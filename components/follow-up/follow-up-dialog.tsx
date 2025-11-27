@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -94,8 +94,8 @@ export function FollowUpDialog({ open, onOpenChange, followUp, onSuccess }: Foll
             ? {
                 name: followUp.name,
                 description: followUp.description || '',
-                trigger: followUp.trigger as any,
-                targetType: followUp.targetType as any,
+                trigger: followUp.trigger as FollowUpFormData['trigger'],
+                targetType: followUp.targetType as FollowUpFormData['targetType'],
                 delay: followUp.delay || 0,
                 messageTemplate: followUp.messageTemplate,
                 active: followUp.active,
@@ -140,9 +140,10 @@ export function FollowUpDialog({ open, onOpenChange, followUp, onSuccess }: Foll
             onSuccess();
             onOpenChange(false);
             reset();
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error saving follow-up:', error);
-            toast.error(error.message || 'Erro ao salvar follow-up');
+            const msg = error instanceof Error ? error.message : 'Erro ao salvar follow-up';
+            toast.error(msg);
         } finally {
             setSaving(false);
         }
